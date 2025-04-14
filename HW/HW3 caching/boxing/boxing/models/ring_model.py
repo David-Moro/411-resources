@@ -32,8 +32,8 @@ class RingModel:
 
         """
         self.ring: List[int] = []
-        self._boxer_cache: dict[int, Boxers]
-        self.ttl: dict[int, float] = {}
+        self._boxer_cache: dict[int, Boxers] = {}
+        self._ttl: dict[int, float] = {}
         self.ttl_seconds = int(os.getenv("TTL", 60))
 
     def fight(self) -> str:
@@ -115,7 +115,7 @@ class RingModel:
         """
         if len(self.ring) >= 2:
             logger.error(f"Attempted to add boxer ID {boxer_id} but the ring is full")
-            raise ValueError("The ring already has two boxers (fight is full).")
+            raise ValueError("Ring is full")
 
         try:
             boxer = Boxers.get_boxer_by_id(boxer_id)
