@@ -62,7 +62,7 @@ class Boxers(db.Model):
         self.height = height
         self.reach = reach
         self.age = age
-        self.weight_class = self.get_weight_class(weight)
+        
 
     @classmethod
     def get_weight_class(cls, weight: float) -> str:
@@ -88,7 +88,6 @@ class Boxers(db.Model):
                     
         if weight < 125:
             raise ValueError("Weight must be at least 125.")
-
         if weight >= 203:
             return "HEAVYWEIGHT"
         elif weight >= 166:
@@ -125,7 +124,7 @@ class Boxers(db.Model):
                 reach=reach,
                 age=age
             )
-            boxer.validate()
+
         except ValueError as e:
             logger.warning(f"Validation failed: {e}")
             raise
@@ -145,12 +144,12 @@ class Boxers(db.Model):
             db.session.commit()
             logger.info(f"Boxer created successfully: {name}")
         except IntegrityError:
-            logger.error(f"Boxer with name '{name}' already exists.")
             db.session.rollback()
+            logger.error(f"Boxer with name '{name}' already exists.")
             raise
         except SQLAlchemyError as e:
-            db.session.rollback()
             logger.error(f"Database error during creation: {e}") 
+            db.session.rollback()
             raise
             
 
@@ -181,9 +180,11 @@ class Boxers(db.Model):
         except ValueError as e:
             logger.info(f"Boxer with ID {boxer_id} not found.")
             raise
+        except SQLAlchemyError as e:
+            logger.error(f"Database error while retrieving boxer with ID {boxer_id}: {e}")
+            raise
 
-        #do i need to add SQlAlchemyError to all of these functions?????
-#####################################
+     
 
     @classmethod
     def get_boxer_by_name(cls, name: str) -> "Boxers":
@@ -210,6 +211,9 @@ class Boxers(db.Model):
             return boxer
         except ValueError as e:
             logger.info(f"Boxer '{name}' not found.")
+            raise
+        except SQLAlchemyError as e:
+            logger.error(f"Database error while retrieving boxer '{name}': {e}")
             raise
 
 
